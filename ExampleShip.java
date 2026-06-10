@@ -5,7 +5,9 @@ import ihs.apcs.spacebattle.commands.*;
 
 public class ExampleShip extends BasicSpaceship {
 private Point midpoint = new Point(0.0,0.0);
+private int radarTime = 0;
 private boolean bool = false;
+private Point shipPoint = new Point(0.0,0.0);
     public static void main(String[] args)
     {
         TextClient.run("10.56.98.121", new ExampleShip());
@@ -19,25 +21,57 @@ private boolean bool = false;
     }
 
     @Override
-    public ShipCommand getNextCommand(BasicEnvironment env)
+    public ShipCommand getNextCommand(BasicEnvironment env){
     {
     ObjectStatus ship = env.getShipStatus();
-     System.out.println((ship.getPosition().getAngleTo(this.midpoint) - ship.getOrientation()));
-    
-      if((ship.getPosition().getAngleTo(this.midpoint) - ship.getOrientation())!=0){
+        if((ship.getPosition().getAngleTo(this.midpoint) - ship.getOrientation())!=0){
           return new RotateCommand(ship.getPosition().getAngleTo(this.midpoint) - ship.getOrientation());
       }
-      else if((ship.getPosition().getDistanceTo(midpoint))>75){
-         return new ThrustCommand('B',0.3,0.3);
+      else if((ship.getPosition().getDistanceTo(midpoint))>200&&(ship.getPosition().getAngleTo(this.midpoint) - ship.getOrientation())==0){
+         radarTime++;
+         if(radarTime>10){
+            radarTime =0;
+            bool = true;
+            return new RadarCommand(4);
+         }
+         return new ThrustCommand('B',0.6,0.4);
       }
-      else if((ship.getPosition().getDistanceTo(midpoint))<=150){
-         return new BrakeCommand(0.12);
+      else if(((ship.getPosition().getDistanceTo(midpoint))<=75&&(ship.getPosition().getDistanceTo(midpoint))<=50)){
+         return new BrakeCommand(0.001);
+      }
+      if(ship.getEnergy()>5)
+      return new FireTorpedoCommand('F');
+      else
+      return new IdleCommand(1.0);
+      /*
+      ObjectStatus ship = env.getShipStatus();
+      if(radarTime>1||bool==false){
+     // System.out.println("radar");
+         radarTime=0;
+         bool=true;
+         return new RadarCommand(5);
       }
       else
-      return new IdleCommand(0.1);
-
-      //if(centerx)
-        //return new IdleCommand(0.1);
-        
-    }
+      radarTime++;
+      if(env.getRadar()!=null){
+      for(ObjectStatus status : env.getRadar().getByType("Ship")){
+         if(status.getPosition().getDistanceTo(ship.getPosition())<ship.getPosition().getDistanceTo(shipPoint)){
+         shipPoint = status.getPosition();
+         System.out.println(shipPoint);
+         }
+    }  
+      }
+      else
+      shipPoint = new Point(0.0,0.0);
+      if((ship.getPosition().getAngleTo(shipPoint) - ship.getOrientation())>5){
+      System.out.println((ship.getPosition().getAngleTo(shipPoint) - ship.getOrientation()));
+         return new RotateCommand(ship.getPosition().getAngleTo(shipPoint) - ship.getOrientation());
+       }
+     else if((ship.getPosition().getAngleTo(shipPoint) - ship.getOrientation())<15&&shipPoint!=new Point(0.0,0.0))
+     return new FireTorpedoCommand('F');
+     else
+     return new IdleCommand(0.1);
+     */
+     }
+     }
 }
