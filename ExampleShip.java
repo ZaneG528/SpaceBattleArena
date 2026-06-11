@@ -27,26 +27,27 @@ private Point shipPoint = new Point(0.0,0.0);
       if(env.getRadar()!=null){
          for(ObjectStatus object : env.getRadar().getByType("Torpedo")){
             if(ship.getPosition().getDistanceTo(object.getPosition())<30){
-               return new RaiseShieldsCommand(0.2);
+               return new RaiseShieldsCommand(1.0);
             }
       }
       }
         if((ship.getPosition().getAngleTo(this.midpoint) - ship.getOrientation())!=0){
           return new RotateCommand(ship.getPosition().getAngleTo(this.midpoint) - ship.getOrientation());
       }
-      else if((ship.getPosition().getDistanceTo(midpoint))>200&&(ship.getPosition().getAngleTo(this.midpoint) - ship.getOrientation())==0){
+      else if((ship.getPosition().getDistanceTo(midpoint))>100&&(ship.getPosition().getAngleTo(this.midpoint) - ship.getOrientation())==0){
          radarTime++;
          if(radarTime>2){
             radarTime =0;
             bool = true;
             return new RadarCommand(4);
          }
-         return new ThrustCommand('B',0.6,0.4);
-      }
+        return new ThrustCommand('B',0.6,0.3);
+      
+            }
       else if((ship.getPosition().getDistanceTo(midpoint))<=75&&ship.getSpeed()>0){
          return new BrakeCommand(0.001);
       }
-      return new IdleCommand(0.1);
+      return new FireTorpedoCommand('F');
       /*
       ObjectStatus ship = env.getShipStatus();
       if(radarTime>1||bool==false){
